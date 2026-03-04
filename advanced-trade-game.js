@@ -4,6 +4,15 @@ class AdvancedTradeSimulator {
         this.ctx = null;
         this.gameRunning = false;
         
+        // Login durumu
+        this.loginScreen = true;
+        this.selectedAvatar = '👤';
+        this.selectedMoney = 50000;
+        this.startOnline = false;
+        
+        // Gerçek para sistemi
+        this.realMoneyBalance = 1000; // Başlangıç gerçek para bakiyesi
+        
         // Oyun durumu
         this.money = 50000;
         this.currentCity = 33; // İstanbul
@@ -68,34 +77,144 @@ class AdvancedTradeSimulator {
         this.canvas = document.getElementById('game-canvas');
         this.ctx = this.canvas.getContext('2d');
         
-        this.resizeCanvas();
-        this.setupEventListeners();
-        this.setupUI();
-        this.initializeGame();
-        
         // Ses yöneticisi
         this.soundManager = new SoundManager();
+        
+        // Canvas ayarları
+        this.resizeCanvas();
+        
+        // Olay dinleyicileri
+        this.setupEventListeners();
+        
+        // Login ekranı olayları
+        this.setupLoginEvents();
+        
+        // Başlangıç envanteri (sadece oyun başlayınca)
+        if (!this.loginScreen) {
+            this.initializeGame();
+        }
+        
+        // Canvas boyutlandırma
+        window.addEventListener('resize', () => this.resizeCanvas());
+    }
+    
+    setupLoginEvents() {
+        // Avatar seçimi
+        setTimeout(() => {
+            document.querySelectorAll('.avatar-option-login').forEach(option => {
+                option.addEventListener('click', (e) => {
+                    document.querySelectorAll('.avatar-option-login').forEach(opt => opt.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                    this.selectedAvatar = e.target.dataset.avatar;
+                    this.soundManager.playClick();
+                });
+            });
+            
+            // Para seçimi
+            document.querySelectorAll('.money-option').forEach(option => {
+                option.addEventListener('click', (e) => {
+                    document.querySelectorAll('.money-option').forEach(opt => opt.classList.remove('selected'));
+                    e.currentTarget.classList.add('selected');
+                    this.selectedMoney = parseInt(e.currentTarget.dataset.money);
+                    this.soundManager.playClick();
+                });
+            });
+            
+            // Online mod checkbox
+            const onlineCheckbox = document.getElementById('online-mode-login');
+            if (onlineCheckbox) {
+                onlineCheckbox.addEventListener('change', (e) => {
+                    this.startOnline = e.target.checked;
+                    this.soundManager.playClick();
+                });
+            }
+            
+            // Varsayılan seçimler
+            const defaultAvatar = document.querySelector('.avatar-option-login[data-avatar="👤"]');
+            if (defaultAvatar) defaultAvatar.classList.add('selected');
+            
+            const defaultMoney = document.querySelector('.money-option[data-money="50000"]');
+            if (defaultMoney) defaultMoney.classList.add('selected');
+            
+            // Dükkan butonu
+            const shopBtn = document.getElementById('shop-login-btn');
+            if (shopBtn) {
+                shopBtn.addEventListener('click', () => {
+                    this.openShopModal();
+                    this.soundManager.playClick();
+                });
+            }
+        }, 100); // DOM yüklendikten sonra event listener'ları ekle
+    }
+    
+    startFromLogin() {
+        const playerName = document.getElementById('player-name-login').value.trim();
+        
+        if (!playerName) {
+            alert('Lütfen oyuncu adı girin!');
+            return;
+        }
+        
+        // Profil oluştur
+        this.playerProfile = {
+            id: this.playerId,
+            name: playerName,
+            avatar: this.selectedAvatar,
+            bio: document.getElementById('player-bio-login').value.trim(),
+            level: this.level,
+            money: this.selectedMoney,
+            city: this.currentCity,
+            joinDate: new Date().toISOString(),
+            friends: [],
+            achievements: [],
+            stats: {
+                totalTrades: 0,
+                totalProfit: 0,
+                citiesVisited: 1,
+                businessesOwned: 0,
+                vehiclesOwned: 1
+            }
+        };
+        
+        this.playerName = playerName;
+        this.money = this.selectedMoney;
+        this.isOnline = this.startOnline;
+        
+        // Profili kaydet
+        localStorage.setItem('playerProfile', JSON.stringify(this.playerProfile));
+        
+        // Login ekranını gizle
+        document.getElementById('login-screen').classList.add('hidden');
+        this.loginScreen = false;
+        
+        // Oyunu başlat
+        this.startGame();
+        
+        this.soundManager.playSuccess();
     }
     
     initializeGame() {
-        // Başlangıç envanteri
-        tradeGoods.forEach(good => {
-            this.inventory[good.name] = 0;
-        });
-        
-        // Başlangıç aracı
-        this.addVehicle({
-            ...vehicleTypes[1], // Kamyonet
-            id: Date.now(),
-            condition: 100,
-            fuel: 100,
-            location: this.currentCity
-        });
-        
-        this.currentVehicle = this.vehicles[0];
-        
-        // Profil kontrolü
-        this.loadPlayerProfile();
+        // Login ekranı kontrol et
+        if (!this.loginScreen) {
+            // Başlangıç envanteri
+            tradeGoods.forEach(good => {
+                this.inventory[good.name] = 0;
+            });
+            
+            // Başlangıç aracı
+            this.addVehicle({
+                ...vehicleTypes[1], // Kamyonet
+                id: Date.now(),
+                condition: 100,
+                fuel: 100,
+                location: this.currentCity
+            });
+            
+            this.currentVehicle = this.vehicles[0];
+            
+            // Profil kontrolü
+            this.loadPlayerProfile();
+        }
     }
     
     getLocalIP() {
@@ -248,16 +367,29 @@ class AdvancedTradeSimulator {
     
     setupUI() {
         const startBtn = document.getElementById('start-btn');
-        startBtn.addEventListener('click', () => this.startGame());
+        if (startBtn) {
+            startBtn.addEventListener('click', () => this.startGame());
+        }
     }
     
     startGame() {
         this.gameRunning = true;
-        document.getElementById('start-btn').style.display = 'none';
+        
+        // Desktop UI'yi gizle
+        const startBtn = document.getElementById('start-btn');
+        if (startBtn) {
+            startBtn.style.display = 'none';
+        }
+        
         this.soundManager.resumeContext();
         this.updateUI();
         this.startGameTime();
-        this.connectToServer();
+        
+        // Online modu başlat
+        if (this.isOnline) {
+            this.connectToServer();
+        }
+        
         this.animate();
     }
     
@@ -559,43 +691,59 @@ class AdvancedTradeSimulator {
             
             // Zaman hız butonları
             if (y >= 95 && y <= 115) {
-                // 1x butonu
-                this.changeGameSpeed(1);
-                return;
-            } else if (y >= 105 && y <= 125) {
-                // 2x butonu
-                this.changeGameSpeed(2);
-                return;
-            } else if (y >= 115 && y <= 135) {
-                // 5x butonu
-                this.changeGameSpeed(5);
-                return;
-            }
         }
+    });
+}
+
+syncWithServer() {
+    // Simüle edilmiş senkronizasyon
+    const playerData = {
+        id: this.playerId,
+        name: this.playerName,
+        city: this.currentCity,
+        money: this.money,
+        level: this.level,
+        activity: this.getCurrentActivity()
+    };
         
-        // Şehir kontrolü
-        for (let i = 0; i < turkeyProvinces.length; i++) {
-            const city = turkeyProvinces[i];
-            const distance = Math.sqrt(Math.pow(x - city.x, 2) + Math.pow(y - city.y, 2));
-            
-            if (distance < 15) {
-                if (i === this.currentCity) {
-                    // Kendi şehrinde - menüyü aç
-                    this.openCityMenu(city);
-                } else {
-                    // Başka şehre git
-                    this.travelToCity(i);
-                }
-                break;
-            }
-        }
+    // Diğer oyuncularla veri paylaşımı (simülasyon)
+    this.broadcastPlayerData(playerData);
+}
+
+getCurrentActivity() {
+    if (this.traveling) return 'yolculuk ediyor';
+    if (this.currentModal === 'trade') return 'ticaret yapıyor';
+    if (this.currentModal === 'vehicles') return 'araç yönetiyor';
+    if (this.currentModal === 'business') return 'işletme yönetiyor';
+    if (this.currentModal === 'employees') return 'çalışan yönetiyor';
+    return 'bekliyor';
+}
+
+broadcastPlayerData(data) {
+    // Simüle edilmiş yayın - diğer oyuncuların verilerini güncelle
+    // Gerçek bir sunucuda bu WebSocket veya HTTP ile yapılır
+    console.log('Player data broadcasted:', data);
+}
+
+getOnlinePlayersInCity(cityIndex) {
+    return this.onlinePlayers.filter(player => player.city === cityIndex);
+}
+
+toggleOnlineMode() {
+    this.isOnline = !this.isOnline;
+    if (this.isOnline) {
+        this.connectToServer();
+    } else {
+        this.onlinePlayers = [];
     }
-    
-    handleCanvasHover(e) {
-        if (!this.gameRunning) return;
-        
-        const rect = this.canvas.getBoundingClientRect();
-        const x = (e.clientX - rect.left - this.offsetX) / this.zoom;
+    this.updateUI();
+    return this.isOnline;
+}
+
+togglePause() {
+    this.isPaused = !this.isPaused;
+    if (!this.isPaused) {
+        this.lastTimeUpdate = Date.now();
         const y = (e.clientY - rect.top - this.offsetY) / this.zoom;
         
         this.hoveredCity = null;
@@ -667,6 +815,17 @@ class AdvancedTradeSimulator {
     }
     
     openCityMenu(city) {
+        // Modal zaten açıksa kapat
+        if (this.currentModal) {
+            this.closeAllModals();
+            return;
+        }
+        
+        // Mobil cihazda menüyü kapat
+        if (this.isMobileDevice()) {
+            this.toggleMobileMenu();
+        }
+        
         const modal = document.getElementById('trade-modal');
         const modalTitle = document.getElementById('modal-title');
         const goodsList = document.getElementById('goods-list');
@@ -771,9 +930,47 @@ class AdvancedTradeSimulator {
                 </div>
             `;
         });
+        html += '</div>';
+        
+        // Piyasa özeti
+        html += `
+            <div class="market-summary">
+                <h3>📊 Piyasa Özeti</h3>
+                <div class="summary-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Toplam Para:</span>
+                        <span class="stat-value">₺${this.money.toLocaleString('tr-TR')}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Yük Kapasitesi:</span>
+                        <span class="stat-value">${this.currentCargo}/${this.currentVehicle.cargo}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Envanter Değeri:</span>
+                        <span class="stat-value">₺${this.calculateInventoryValue().toLocaleString('tr-TR')}</span>
+                    </div>
+                </div>
+            </div>
+        `;
         
         html += '</div>';
         return html;
+    }
+    
+    calculateInventoryValue() {
+        let totalValue = 0;
+        const city = turkeyProvinces[this.currentCity];
+        
+        Object.keys(this.inventory).forEach(goodName => {
+            const quantity = this.inventory[goodName];
+            if (quantity > 0) {
+                const good = tradeGoods.find(g => g.name === goodName);
+                const price = this.calculateGoodPrice(good, city);
+                totalValue += price * quantity;
+            }
+        });
+        
+        return totalValue;
     }
     
     getCityGoods(city) {
@@ -1551,20 +1748,27 @@ class AdvancedTradeSimulator {
         });
         this.currentModal = null;
         this.soundManager.playClick();
+        
+        // Mobil menüyü de kapat
+        if (this.isMobileDevice()) {
+            const menu = document.getElementById('mobile-side-menu');
+            const overlay = document.getElementById('mobile-menu-overlay');
+            if (menu && overlay) {
+                menu.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+        }
     }
     
     updateUI() {
-        document.getElementById('money').textContent = this.money.toLocaleString('tr-TR');
-        document.getElementById('current-city').textContent = turkeyProvinces[this.currentCity].name;
-        document.getElementById('cargo').textContent = `${this.currentCargo}/${this.currentVehicle?.cargo || 0}`;
-        
-        // Level ve XP
-        if (document.getElementById('level-info')) {
+        // Desktop UI güncelleme
+        if (document.getElementById('money')) {
+            document.getElementById('money').textContent = this.money.toLocaleString('tr-TR');
+            document.getElementById('current-city').textContent = turkeyProvinces[this.currentCity].name;
+            document.getElementById('cargo').textContent = `${this.currentCargo}/${this.currentVehicle?.cargo || 0}`;
             document.getElementById('level-info').textContent = `Seviye ${this.level} (${this.experience}/${this.level * 1000} XP)`;
-        }
-        
-        // Zaman güncelleme
-        if (document.getElementById('game-time')) {
+            
+            // Zaman güncelleme
             const hours = this.gameTime.getHours().toString().padStart(2, '0');
             const minutes = this.gameTime.getMinutes().toString().padStart(2, '0');
             const day = this.gameTime.getDate().toString().padStart(2, '0');
@@ -1572,32 +1776,84 @@ class AdvancedTradeSimulator {
             const year = this.gameTime.getFullYear();
             
             document.getElementById('game-time').textContent = `${day}/${month}/${year} ${hours}:${minutes}`;
-        }
-        
-        // Online durumu güncelleme
-        if (document.getElementById('online-status')) {
+            
+            // Online durumu güncelleme
             const onlineStatus = document.getElementById('online-status');
-            if (this.isOnline) {
-                onlineStatus.textContent = `🟢 Online (${this.onlinePlayers.length + 1} oyuncu)`;
-                onlineStatus.classList.remove('offline');
-            } else {
-                onlineStatus.textContent = '🔴 Offline';
-                onlineStatus.classList.add('offline');
+            if (onlineStatus) {
+                if (this.isOnline) {
+                    onlineStatus.textContent = `🟢 Online (${this.onlinePlayers.length + 1} oyuncu)`;
+                    onlineStatus.classList.remove('offline');
+                } else {
+                    onlineStatus.textContent = '🔴 Offline';
+                    onlineStatus.classList.add('offline');
+                }
+            }
+            
+            // Oyun kontrol butonları
+            if (document.getElementById('pause-btn')) {
+                document.getElementById('pause-btn').textContent = this.isPaused ? '▶️' : '⏸';
+            }
+            
+            if (document.getElementById('speed-btn')) {
+                document.getElementById('speed-btn').textContent = `${this.gameSpeed}x`;
+            }
+            
+            if (document.getElementById('online-btn')) {
+                document.getElementById('online-btn').textContent = this.isOnline ? '🔴' : '🌐';
             }
         }
         
-        // Oyun kontrol butonları
-        if (document.getElementById('pause-btn')) {
-            document.getElementById('pause-btn').textContent = this.isPaused ? '▶️' : '⏸';
+        // Mobile UI güncelleme
+        if (document.getElementById('mobile-money')) {
+            document.getElementById('mobile-money').textContent = `${this.money.toLocaleString('tr-TR')} ₺`;
+            document.getElementById('mobile-city').textContent = turkeyProvinces[this.currentCity].name;
+            document.getElementById('mobile-cargo').textContent = `${this.currentCargo}/${this.currentVehicle?.cargo || 0}`;
+            document.getElementById('mobile-level').textContent = `Lv.${this.level}`;
+            
+            // Zaman güncelleme
+            const hours = this.gameTime.getHours().toString().padStart(2, '0');
+            const minutes = this.gameTime.getMinutes().toString().padStart(2, '0');
+            document.getElementById('mobile-time').textContent = `${hours}:${minutes}`;
+            
+            // Online durumu
+            if (this.isOnline) {
+                document.getElementById('mobile-online').textContent = `${this.onlinePlayers.length + 1} oyuncu`;
+                document.getElementById('mobile-online-btn').classList.remove('offline');
+                document.getElementById('mobile-online-btn').classList.add('online');
+            } else {
+                document.getElementById('mobile-online').textContent = 'Offline';
+                document.getElementById('mobile-online-btn').classList.remove('online');
+                document.getElementById('mobile-online-btn').classList.add('offline');
+            }
+            
+            // Mobile kontrol butonları
+            document.getElementById('mobile-pause-btn').textContent = this.isPaused ? '▶️' : '⏸';
+            document.getElementById('mobile-speed-btn').textContent = `${this.gameSpeed}x`;
+            
+            // Profil bilgileri
+            document.getElementById('mobile-player-name').textContent = this.playerName || 'Profil Yok';
+            document.getElementById('mobile-ip').textContent = this.localIP;
+            document.getElementById('mobile-friends').textContent = this.friends.length;
+        }
+    }
+    
+    toggleMobileMenu() {
+        const menu = document.getElementById('mobile-side-menu');
+        const overlay = document.getElementById('mobile-menu-overlay');
+        
+        if (menu.classList.contains('active')) {
+            menu.classList.remove('active');
+            overlay.classList.remove('active');
+        } else {
+            menu.classList.add('active');
+            overlay.classList.add('active');
         }
         
-        if (document.getElementById('speed-btn')) {
-            document.getElementById('speed-btn').textContent = `${this.gameSpeed}x`;
-        }
-        
-        if (document.getElementById('online-btn')) {
-            document.getElementById('online-btn').textContent = this.isOnline ? '🔴' : '🌐';
-        }
+        this.soundManager.playClick();
+    }
+    
+    isMobileDevice() {
+        return window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
     
     updateEconomy() {
@@ -1636,7 +1892,7 @@ class AdvancedTradeSimulator {
         });
     }
     
-    draw() {
+    drawUI() {
         // Temizle
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
@@ -1744,7 +2000,175 @@ class AdvancedTradeSimulator {
         this.ctx.restore();
         
         // UI katmanı
-        this.drawUI();
+        this.drawUIOverlay();
+    }
+    
+    drawUIOverlay() {
+        // Üst bilgi paneli
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        this.ctx.fillRect(10, 10, 450, 150);
+        
+        this.ctx.fillStyle = 'white';
+        this.ctx.font = 'bold 16px Arial';
+        this.ctx.textAlign = 'left';
+        this.ctx.fillText(`Para: ₺${this.money.toLocaleString('tr-TR')}`, 20, 35);
+        this.ctx.fillText(`Şehir: ${turkeyProvinces[this.currentCity].name}`, 20, 60);
+        this.ctx.fillText(`Yük: ${this.currentCargo}/${this.currentVehicle?.cargo || 0}`, 20, 85);
+        this.ctx.fillText(`Seviye: ${this.level} (${this.experience}/${this.level * 1000} XP)`, 20, 110);
+        
+        // Zaman ve online durumu
+        this.ctx.font = '14px Arial';
+        const hours = this.gameTime.getHours().toString().padStart(2, '0');
+        const minutes = this.gameTime.getMinutes().toString().padStart(2, '0');
+        this.ctx.fillText(`Saat: ${hours}:${minutes}`, 20, 135);
+        
+        if (this.isOnline) {
+            this.ctx.fillStyle = '#4CAF50';
+            this.ctx.fillText(`🟢 Online (${this.onlinePlayers.length + 1} oyuncu)`, 250, 35);
+        } else {
+            this.ctx.fillStyle = '#f44336';
+            this.ctx.fillText('🔴 Offline', 250, 35);
+        }
+        
+        // Oyun hız kontrolü
+        this.ctx.fillStyle = 'white';
+        this.ctx.fillText(`Hız: ${this.gameSpeed}x`, 250, 60);
+        this.ctx.fillText(this.isPaused ? '⏸ Duraklatıldı' : '▶️ Oynuyor', 250, 85);
+        
+        // Araç bilgisi
+        if (this.currentVehicle) {
+            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+            this.ctx.fillRect(10, 170, 300, 80);
+            
+            this.ctx.fillStyle = 'white';
+            this.ctx.font = 'bold 14px Arial';
+            this.ctx.fillText(`Araç: ${this.currentVehicle.name}`, 20, 195);
+            this.ctx.font = '12px Arial';
+            this.ctx.fillText(`Durum: ${this.currentVehicle.condition}% | Yakıt: ${this.currentVehicle.fuel}%`, 20, 215);
+            this.ctx.fillText(`Hız: ${this.currentVehicle.speed}x`, 20, 235);
+        }
+        
+        // Zoom kontrolü
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        this.ctx.fillRect(this.canvas.width - 110, 10, 100, 120);
+        
+        this.ctx.fillStyle = 'white';
+        this.ctx.font = '14px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText(`Zoom: ${(this.zoom * 100).toFixed(0)}%`, this.canvas.width - 60, 35);
+        this.ctx.fillText('Scroll: Zoom', this.canvas.width - 60, 55);
+        this.ctx.fillText('Drag: Move', this.canvas.width - 60, 75);
+        
+        // Zaman kontrol butonları
+        this.ctx.fillText('Zaman:', this.canvas.width - 60, 95);
+        this.ctx.font = '12px Arial';
+        this.ctx.fillText('1x 2x 5x', this.canvas.width - 60, 115);
+        
+        // Yolculuk bilgisi
+        if (this.traveling) {
+            const progressWidth = 300;
+            const progressHeight = 20;
+            const progressX = (this.canvas.width - progressWidth) / 2;
+            const progressY = this.canvas.height - 50;
+            
+            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+            this.ctx.fillRect(progressX - 10, progressY - 30, progressWidth + 20, progressHeight + 40);
+            
+            // Progress bar
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            this.ctx.fillRect(progressX, progressY, progressWidth, progressHeight);
+            
+            this.ctx.fillStyle = '#4CAF50';
+            this.ctx.fillRect(progressX, progressY, progressWidth * this.travelProgress, progressHeight);
+            
+            // Yolculuk metni
+            this.ctx.fillStyle = 'white';
+            this.ctx.font = 'bold 14px Arial';
+            this.ctx.textAlign = 'center';
+            const fromCity = turkeyProvinces[this.travelFrom].name;
+            const toCity = turkeyProvinces[this.travelTo].name;
+            this.ctx.fillText(`${fromCity} → ${toCity}`, this.canvas.width / 2, progressY - 10);
+        }
+        
+        // Ekonomi özeti
+        if (!this.traveling) {
+            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+            this.ctx.fillRect(10, this.canvas.height - 100, 350, 90);
+            
+            this.ctx.fillStyle = 'white';
+            this.ctx.font = '12px Arial';
+            this.ctx.textAlign = 'left';
+            
+            const totalIncome = this.businesses.reduce((sum, b) => sum + this.calculateBusinessIncome(b), 0);
+            const totalExpenses = this.employees.reduce((sum, e) => sum + e.salary, 0);
+            
+            this.ctx.fillText(`İşletmeler: ${this.businesses.length} | Çalışanlar: ${this.employees.length}`, 20, this.canvas.height - 75);
+            this.ctx.fillText(`Günlük Gelir: ₺${totalIncome.toLocaleString('tr-TR')}`, 20, this.canvas.height - 55);
+            this.ctx.fillText(`Günlük Gider: ₺${totalExpenses.toLocaleString('tr-TR')}`, 20, this.canvas.height - 35);
+            this.ctx.fillText(`Net Kâr: ₺${(totalIncome - totalExpenses).toLocaleString('tr-TR')}`, 20, this.canvas.height - 15);
+        }
+        
+        // Online oyuncu göstergesi
+        if (this.isOnline && this.onlinePlayers.length > 0) {
+            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+            this.ctx.fillRect(this.canvas.width - 160, 140, 150, 80);
+            
+            this.ctx.fillStyle = 'white';
+            this.ctx.font = '12px Arial';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText('Online Oyuncular', this.canvas.width - 85, 160);
+            
+            // En aktif şehirler
+            const cityCounts = {};
+            this.onlinePlayers.forEach(player => {
+                cityCounts[player.city] = (cityCounts[player.city] || 0) + 1;
+            });
+            
+            const topCities = Object.entries(cityCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3);
+            
+            topCities.forEach(([cityIndex, count], index) => {
+                const city = turkeyProvinces[cityIndex];
+                this.ctx.fillText(`${city.name}: ${count}`, this.canvas.width - 85, 180 + index * 15);
+            });
+        }
+        
+        // Dükkan bilgisi
+        this.drawShopInfo();
+    }
+    
+    drawShopInfo() {
+        // Dükkan paneli
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        this.ctx.fillRect(this.canvas.width - 200, this.canvas.height - 120, 190, 110);
+        
+        this.ctx.fillStyle = '#ffd700';
+        this.ctx.font = 'bold 16px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('🏪 DÜKKAN', this.canvas.width - 105, this.canvas.height - 105);
+        
+        // Gerçek para ve oyun parası
+        this.ctx.fillStyle = 'white';
+        this.ctx.font = '14px Arial';
+        this.ctx.fillText(`Gerçek Para: ₺${this.money.toLocaleString('tr-TR')}`, this.canvas.width - 105, this.canvas.height - 80);
+        this.ctx.fillText(`Oyun Parası: ₺${this.money.toLocaleString('tr-TR')}`, this.canvas.width - 105, this.canvas.height - 60);
+        
+        // Dükkan butonu
+        const buttonWidth = 120;
+        const buttonHeight = 30;
+        const buttonX = this.canvas.width - 105 - buttonWidth/2;
+        const buttonY = this.canvas.height - 40;
+        
+        // Buton arka planı
+        this.ctx.fillStyle = '#4CAF50';
+        this.ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
+        
+        // Buton metni
+        this.ctx.fillStyle = 'white';
+        this.ctx.font = 'bold 12px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('DÜKKAN AÇ', this.canvas.width - 105, buttonY + 20);
     }
     
     drawUI() {

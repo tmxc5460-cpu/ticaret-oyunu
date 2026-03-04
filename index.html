@@ -5,9 +5,165 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Ticaret İmparatorluğu</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/x-icon;base64,AAABAAEAEBAAAAEAIAAoBAAAFgAAACgAAAAoAAAAIAAAAAEAIAAAAAAAAAQABMLAAATC8AAAAAAAAAAAAAAAAAABAAAAAQAAAAAAAAEAAAAA">
 </head>
 <body>
     <div id="game-container">
+        <!-- Login Screen -->
+        <div id="login-screen" class="login-screen">
+            <div class="login-container">
+                <div class="login-header">
+                    <h1>🏛️ Ticaret İmparatorluğu</h1>
+                    <p>Türkiye'nin en kapsamlı ticaret simülatörü</p>
+                </div>
+                
+                <div class="login-form">
+                    <div class="form-group">
+                        <label for="player-name-login">Oyuncu Adı:</label>
+                        <input type="text" id="player-name-login" placeholder="Adınızı girin" maxlength="20">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Avatar:</label>
+                        <div class="avatar-selection-login">
+                            <div class="avatar-option-login" data-avatar="👤">👤</div>
+                            <div class="avatar-option-login" data-avatar="👨">👨</div>
+                            <div class="avatar-option-login" data-avatar="👩">👩</div>
+                            <div class="avatar-option-login" data-avatar="🧑">🧑</div>
+                            <div class="avatar-option-login" data-avatar="👶">👶</div>
+                            <div class="avatar-option-login" data-avatar="👴">👴</div>
+                            <div class="avatar-option-login" data-avatar="👵">👵</div>
+                            <div class="avatar-option-login" data-avatar="🦸">🦸</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="player-bio-login">Bio:</label>
+                        <textarea id="player-bio-login" placeholder="Kendinizi tanıtın..." maxlength="100"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="starting-money">Başlangıç Parası:</label>
+                        <div class="money-selection">
+                            <div class="money-option" data-money="25000" data-label="Acemi">💰 Acemi<br><small>25,000 ₺</small></div>
+                            <div class="money-option" data-money="50000" data-label="Tüccar">💎 Tüccar<br><small>50,000 ₺</small></div>
+                            <div class="money-option" data-money="100000" data-label="İmparator">👑 İmparator<br><small>100,000 ₺</small></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="online-mode-login">
+                            <span class="checkmark"></span>
+                            Online modda başla
+                        </label>
+                    </div>
+                    
+                    <div class="login-buttons">
+                    <button id="login-btn" class="login-btn" onclick="game.startFromLogin()">
+                        🚀 Oyuna Başla
+                    </button>
+                    
+                    <button id="shop-login-btn" class="shop-login-btn" onclick="game.openShopModal()">
+                        🏪 Dükkan
+                    </button>
+                </div>
+                </div>
+                
+                <div class="login-footer">
+                    <p>🎮 81 Şehir • 🚗 Araç Ticareti • 🏢 İşletme Yönetimi</p>
+                    <p>👥 Çok Oyunculu • 🌐 Arkadaşlık Sistemi • 🎯 Seviye Sistemi</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu Button -->
+        <button id="mobile-menu-btn" onclick="game.toggleMobileMenu()">☰</button>
+        
+        <!-- Mobile Side Menu -->
+        <div id="mobile-side-menu">
+            <div class="menu-header">
+                <h2>🏛️ Ticaret İmparatorluğu</h2>
+                <button class="close-menu" onclick="game.toggleMobileMenu()">✕</button>
+            </div>
+            <div class="menu-content">
+                <div class="menu-section">
+                    <h3>📊 Oyun Durumu</h3>
+                    <div class="menu-item">
+                        <span class="label">💰 Para:</span>
+                        <span class="value" id="mobile-money">50,000 ₺</span>
+                    </div>
+                    <div class="menu-item">
+                        <span class="label">🏙️ Şehir:</span>
+                        <span class="value" id="mobile-city">İstanbul</span>
+                    </div>
+                    <div class="menu-item">
+                        <span class="label">📦 Yük:</span>
+                        <span class="value" id="mobile-cargo">0/50</span>
+                    </div>
+                    <div class="menu-item">
+                        <span class="label">⭐ Seviye:</span>
+                        <span class="value" id="mobile-level">Lv.1</span>
+                    </div>
+                    <div class="menu-item">
+                        <span class="label">🕐 Zaman:</span>
+                        <span class="value" id="mobile-time">00:00</span>
+                    </div>
+                    <div class="menu-item">
+                        <span class="label">🌐 Online:</span>
+                        <span class="value" id="mobile-online">1 oyuncu</span>
+                    </div>
+                </div>
+                
+                <div class="menu-section">
+                    <h3>🎮 Oyun Kontrolleri</h3>
+                    <div class="menu-controls">
+                        <button class="menu-btn pause" onclick="game.togglePause()">
+                            <span id="mobile-pause-btn">⏸</span>
+                        </button>
+                        <button class="menu-btn" onclick="game.changeGameSpeed(2)">
+                            <span id="mobile-speed-btn">2x</span>
+                        </button>
+                        <button class="menu-btn online" id="mobile-online-btn" onclick="game.toggleOnlineMode()">
+                            🌐
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="menu-section">
+                    <h3>👤 Profil</h3>
+                    <div class="menu-item">
+                        <span class="label">İsim:</span>
+                        <span class="value" id="mobile-player-name">Profil Yok</span>
+                    </div>
+                    <div class="menu-item">
+                        <span class="label">IP:</span>
+                        <span class="value" id="mobile-ip">192.168.1.1</span>
+                    </div>
+                    <div class="menu-item">
+                        <span class="label">Arkadaşlar:</span>
+                        <span class="value" id="mobile-friends">0</span>
+                    </div>
+                </div>
+                
+                <div class="menu-section">
+                    <h3>🎯 Hızlı İşlemler</h3>
+                    <div class="menu-controls">
+                        <button class="menu-btn" onclick="game.openCityMenu(turkeyProvinces[game.currentCity])">
+                            🏪 Ticaret
+                        </button>
+                        <button class="menu-btn" onclick="game.showProfileCreationModal()">
+                            👤 Profil
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu Overlay -->
+        <div id="mobile-menu-overlay" onclick="game.toggleMobileMenu()"></div>
+        
+        <!-- Desktop UI Overlay -->
         <div id="ui-overlay">
             <div id="money-display">Para: <span id="money">50,000</span> ₺</div>
             <div id="city-display">Şehir: <span id="current-city">İstanbul</span></div>

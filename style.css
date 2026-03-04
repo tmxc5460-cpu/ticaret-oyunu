@@ -31,10 +31,10 @@ body {
 
 #ui-overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 20px;
+    top: 10px;
+    left: 10px;
+    width: auto;
+    padding: 15px;
     z-index: 10;
     pointer-events: none;
 }
@@ -43,7 +43,585 @@ body {
     pointer-events: auto;
 }
 
-#money-display, #city-display, #cargo-display, #level-info, #game-time, #online-status {
+/* Login Screen Styles */
+.login-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    overflow: hidden;
+}
+
+.login-screen::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+    animation: float 20s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+.login-container {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 25px;
+    padding: 40px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    z-index: 1;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.login-header h1 {
+    color: #ffd700;
+    font-size: 32px;
+    margin-bottom: 10px;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 215, 0, 0.5); }
+    to { text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 0 30px rgba(255, 215, 0, 0.8); }
+}
+
+.login-header p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 16px;
+    margin: 0;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-group label {
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 15px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: rgba(255, 215, 0, 0.6);
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+}
+
+/* Avatar Selection */
+.avatar-selection-login {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.avatar-option-login {
+    width: 70px;
+    height: 70px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 35px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.avatar-option-login:hover {
+    transform: scale(1.1);
+    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+}
+
+.avatar-option-login.selected {
+    border-color: #ffd700;
+    background: rgba(255, 215, 0, 0.3);
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+}
+
+/* Money Selection */
+.money-selection {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.money-option {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    padding: 20px 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.money-option::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.money-option:hover::before {
+    left: 100%;
+}
+
+.money-option:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 215, 0, 0.6);
+    background: rgba(255, 215, 0, 0.2);
+    box-shadow: 0 15px 30px rgba(255, 215, 0, 0.4);
+}
+
+.money-option.selected {
+    border-color: #ffd700;
+    background: rgba(255, 215, 0, 0.3);
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+}
+
+.money-option .money-icon {
+    font-size: 24px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.money-option .money-title {
+    color: #ffd700;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.money-option small {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+}
+
+/* Checkbox */
+.form-group input[type="checkbox"] {
+    display: none;
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    position: relative;
+}
+
+.checkmark {
+    width: 25px;
+    height: 25px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.form-group input[type="checkbox"]:checked + .checkmark {
+    background: rgba(255, 215, 0, 0.3);
+    border-color: #ffd700;
+}
+
+.form-group input[type="checkbox"]:checked + .checkmark::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ffd700;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Login Button */
+.login-btn {
+    background: linear-gradient(45deg, #ffd700, #ffed4e);
+    color: #333;
+    border: none;
+    border-radius: 15px;
+    padding: 20px 40px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.login-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.login-btn:hover::before {
+    left: 100%;
+}
+
+.login-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(255, 215, 0, 0.6);
+}
+
+.login-btn:active {
+    transform: translateY(-1px);
+}
+
+/* Shop Login Button */
+.shop-login-btn {
+    background: linear-gradient(45deg, #4CAF50, #45a049);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 20px 40px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.shop-login-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.shop-login-btn:hover::before {
+    left: 100%;
+}
+
+.shop-login-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(76, 175, 80, 0.6);
+}
+
+.shop-login-btn:active {
+    transform: translateY(-1px);
+}
+
+/* Button Container */
+.login-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+
+/* Login Footer */
+.login-footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.login-footer p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    margin: 5px 0;
+}
+
+/* Hide login screen when game starts */
+.login-screen.hidden {
+    display: none;
+}
+
+/* Mobile Responsive for Login */
+@media (max-width: 768px) {
+    .login-container {
+        padding: 30px 20px;
+        margin: 20px;
+    }
+    
+    .login-header h1 {
+        font-size: 28px;
+    }
+    
+    .money-selection {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .avatar-selection-login {
+        gap: 10px;
+    }
+    
+    .avatar-option-login {
+        width: 60px;
+        height: 60px;
+        font-size: 30px;
+    }
+    
+    .login-btn {
+        padding: 15px 30px;
+        font-size: 18px;
+    }
+}
+#mobile-menu-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1001;
+    display: none;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    transition: all 0.3s ease;
+}
+
+#mobile-menu-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+/* Mobile Side Menu */
+#mobile-side-menu {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 300px;
+    height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    z-index: 1000;
+    transition: left 0.3s ease;
+    overflow-y: auto;
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
+}
+
+#mobile-side-menu.active {
+    left: 0;
+}
+
+#mobile-side-menu .menu-header {
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+#mobile-side-menu .menu-header h2 {
+    color: white;
+    margin: 0;
+    font-size: 20px;
+    text-align: center;
+}
+
+#mobile-side-menu .close-menu {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#mobile-side-menu .close-menu:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+#mobile-side-menu .menu-content {
+    padding: 20px;
+}
+
+#mobile-side-menu .menu-section {
+    margin-bottom: 25px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 15px;
+    backdrop-filter: blur(10px);
+}
+
+#mobile-side-menu .menu-section h3 {
+    color: #ffd700;
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    text-align: center;
+}
+
+#mobile-side-menu .menu-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 14px;
+}
+
+#mobile-side-menu .menu-item:last-child {
+    border-bottom: none;
+}
+
+#mobile-side-menu .menu-item .label {
+    font-weight: bold;
+}
+
+#mobile-side-menu .menu-item .value {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+#mobile-side-menu .menu-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+#mobile-side-menu .menu-btn {
+    flex: 1;
+    padding: 10px;
+    background: linear-gradient(45deg, #4CAF50, #45a049);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 12px;
+}
+
+#mobile-side-menu .menu-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+#mobile-side-menu .menu-btn.pause {
+    background: linear-gradient(45deg, #ff9800, #f57c00);
+}
+
+#mobile-side-menu .menu-btn.online {
+    background: linear-gradient(45deg, #2196F3, #1976D2);
+}
+
+#mobile-side-menu .menu-btn.offline {
+    background: linear-gradient(45deg, #f44336, #da190b);
+}
+
+/* Overlay for mobile menu */
+#mobile-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#mobile-menu-overlay.active {
+    display: block;
+    opacity: 1;
+}
+    #money-display, #city-display, #cargo-display, #level-info, #game-time, #online-status {
     background: rgba(0, 0, 0, 0.8);
     color: white;
     padding: 12px 18px;
@@ -56,6 +634,50 @@ body {
     backdrop-filter: blur(10px);
     border: 2px solid rgba(255, 255, 255, 0.3);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+#game-controls {
+    display: inline-block;
+    margin-left: 20px;
+    vertical-align: top;
+}
+
+#game-controls button {
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 0 5px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    display: inline-block;
+    text-align: center;
+    line-height: 36px;
+}
+
+#game-controls button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+#game-time {
+    background: linear-gradient(45deg, #2196F3, #1976D2);
+    border-color: #2196F3;
+}
+
+#online-status {
+    background: linear-gradient(45deg, #4CAF50, #45a049);
+    border-color: #4CAF50;
+}
+
+#online-status.offline {
+    background: linear-gradient(45deg, #f44336, #da190b);
+    border-color: #f44336;
 }
 
 #game-controls {
@@ -440,13 +1062,502 @@ body {
     transform: none;
 }
 
-/* Section Headers */
-h3 {
-    color: #ffd700;
+/* Enhanced Trade Section */
+.trade-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 20px;
     margin-bottom: 20px;
-    font-size: 22px;
+}
+
+.goods-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.good-card {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 15px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.good-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.good-card.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.good-card.disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Rarity Classes */
+.good-card.common {
+    border-color: #4CAF50;
+    background: linear-gradient(45deg, rgba(76, 175, 80, 0.1), rgba(69, 160, 73, 0.1));
+}
+
+.good-card.uncommon {
+    border-color: #2196F3;
+    background: linear-gradient(45deg, rgba(33, 150, 243, 0.1), rgba(25, 118, 210, 0.1));
+}
+
+.good-card.rare {
+    border-color: #9C27B0;
+    background: linear-gradient(45deg, rgba(156, 39, 176, 0.1), rgba(123, 31, 162, 0.1));
+}
+
+.good-card.specialty {
+    border-color: #FFD700;
+    background: linear-gradient(45deg, rgba(255, 215, 0, 0.2), rgba(255, 193, 7, 0.2));
+    animation: specialty-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes specialty-glow {
+    from {
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    }
+    to {
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+    }
+}
+
+.good-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.good-name {
+    color: #ffd700;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.good-category {
+    background: rgba(0, 0, 0, 0.3);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.good-stats {
+    margin-bottom: 15px;
+}
+
+.good-price {
+    color: #4CAF50;
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.good-owned {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.good-volatility {
+    color: #ff9800;
+    font-size: 12px;
+    font-style: italic;
+}
+
+.good-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.buy-btn, .sell-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.buy-btn {
+    background: linear-gradient(45deg, #4CAF50, #45a049);
+    color: white;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.buy-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+}
+
+.sell-btn {
+    background: linear-gradient(45deg, #ff9800, #f57c00);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+}
+
+.sell-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
+}
+
+.buy-btn:disabled, .sell-btn:disabled {
+    background: linear-gradient(45deg, #666, #555);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Market Summary */
+.market-summary {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    padding: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.market-summary h3 {
+    color: #ffd700;
+    margin: 0 0 15px 0;
+    font-size: 20px;
     text-align: center;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.summary-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stat-label {
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.stat-value {
+    color: #4CAF50;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* Shop Modal Styles */
+.shop-info {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 20px;
+}
+
+.shop-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.shop-header h2 {
+    color: #ffd700;
+    font-size: 28px;
+    margin-bottom: 10px;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.shop-header p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 16px;
+    margin: 0;
+}
+
+.balance-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.balance-item {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    padding: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.balance-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 215, 0, 0.4);
+}
+
+.balance-label {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.balance-value {
+    color: #4CAF50;
+    font-size: 20px;
+    font-weight: bold;
+    display: block;
+}
+
+.shop-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.action-section {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 25px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.action-section h3 {
+    color: #ffd700;
+    font-size: 20px;
+    margin: 0 0 20px 0;
+    text-align: center;
+}
+
+.exchange-form {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.exchange-form input {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.exchange-form input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.exchange-form input:focus {
+    outline: none;
+    border-color: rgba(255, 215, 0, 0.6);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.exchange-form button {
+    padding: 12px 20px;
+    background: linear-gradient(45deg, #4CAF50, #45a049);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.exchange-form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+}
+
+.exchange-info {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    font-style: italic;
+    text-align: center;
+    margin: 0;
+}
+
+.shop-items {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 30px;
+}
+
+.shop-items h3 {
+    color: #ffd700;
+    font-size: 24px;
+    margin: 0 0 25px 0;
+    text-align: center;
+}
+
+.package-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.package-item {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.package-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 215, 0, 0.4);
+}
+
+.package-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.package-icon {
+    font-size: 32px;
+}
+
+.package-name {
+    color: #ffd700;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.package-price {
+    color: #4CAF50;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.package-content {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+.package-item button {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(45deg, #ff9800, #f57c00);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+}
+
+.package-item button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
+}
+
+/* Mobile Responsive for Shop */
+@media (max-width: 768px) {
+    .shop-info {
+        padding: 20px;
+    }
+    
+    .balance-info {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .shop-actions {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .exchange-form {
+        flex-direction: column;
+    }
+    
+    .package-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .shop-header h2 {
+        font-size: 24px;
+    }
+    
+    .action-section h3 {
+        font-size: 18px;
+    }
+    
+    .shop-items h3 {
+        font-size: 20px;
+    }
+}
+@media (max-width: 768px) {
+    .goods-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .good-card {
+        padding: 12px;
+    }
+    
+    .good-name {
+        font-size: 16px;
+    }
+    
+    .good-price {
+        font-size: 18px;
+    }
+    
+    .summary-stats {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .stat-item {
+        padding: 12px;
+    }
+    
+    .good-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
 }
 
 /* Online Section Styles */
@@ -1036,8 +2147,49 @@ h3 {
     flex-wrap: wrap;
 }
 
-/* Responsive Design Updates */
+/* Mobile Responsive Design */
 @media (max-width: 768px) {
+    #mobile-menu-btn {
+        display: block;
+    }
+    
+    #ui-overlay {
+        display: none;
+    }
+    
+    .modal-content {
+        margin: 1% auto;
+        width: 98%;
+        padding: 20px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    .goods-name {
+        font-size: 18px;
+    }
+    
+    .goods-price {
+        font-size: 20px;
+    }
+    
+    .menu-tabs {
+        flex-direction: column;
+    }
+    
+    .trade-buttons {
+        flex-direction: column;
+    }
+    
+    .vehicle-actions, .business-actions, .employee-actions {
+        flex-direction: column;
+    }
+    
+    .quantity-control {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
     .joint-business-options {
         grid-template-columns: 1fr;
     }
