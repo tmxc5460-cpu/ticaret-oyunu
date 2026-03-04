@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Ticaret İmparatorluğu</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="ui-overlay">
+            <div id="money-display">Para: <span id="money">50,000</span> ₺</div>
+            <div id="city-display">Şehir: <span id="current-city">İstanbul</span></div>
+            <div id="cargo-display">Yük: <span id="cargo">0</span>/50</div>
+            <div id="level-info">Seviye 1 (0/1000 XP)</div>
+            <div id="game-time">01/01/2024 00:00</div>
+            <div id="online-status">🟢 Online (1 oyuncu)</div>
+            <div id="game-controls">
+                <button id="pause-btn" onclick="game.togglePause()">⏸</button>
+                <button id="speed-btn" onclick="game.changeGameSpeed(2)">2x</button>
+                <button id="online-btn" onclick="game.toggleOnlineMode()">🌐</button>
+            </div>
+            <button id="start-btn">Başla</button>
+        </div>
+        <canvas id="game-canvas"></canvas>
+    </div>
+    
+    <div id="trade-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modal-title">Ticaret Merkezi</h2>
+            <div id="goods-list"></div>
+        </div>
+    </div>
+    
+    <script src="turkey-cities.js"></script>
+    <script src="sounds.js"></script>
+    <script src="advanced-trade-game.js"></script>
+</body>
+</html>
