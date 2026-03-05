@@ -2,45 +2,173 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#6a82fb">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Ticaret%20Imparatorlugu%22,%22short_name%22:%22Ticaret%22,%22start_url%22:%22/index.html%22,%22display%22:%22standalone%22,%22background_color%22:%22#0a0b10%22,%22theme_color%22:%22#6a82fb%22}">
     <title>Dünya Ticareti</title>
-    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        :root {
+            --bg: #0a0b10;
+            --card: #161b22;
+            --primary: #6a82fb;
+            --gold: #fbc531;
+        }
+
+        body { 
+            margin: 0; background: var(--bg); color: white; 
+            font-family: 'Segoe UI', sans-serif; overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .hidden { display: none !important; }
+
+        /* MOBİL UYGULAMA YÜKLEME PANELİ */
+        #pwa-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 10000;
+            display: flex; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-box {
+            background: var(--card); padding: 30px; border-radius: 25px;
+            width: 80%; text-align: center; border: 1px solid var(--primary);
+        }
+
+        .install-btn {
+            background: linear-gradient(90deg, #6a82fb, #965df0);
+            border: none; padding: 15px 30px; color: white;
+            border-radius: 15px; font-weight: bold; margin-top: 20px; width: 100%;
+        }
+
+        /* GİRİŞ EKRANI */
+        #login-screen {
+            height: 100vh; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+        }
+
+        .main-btn {
+            background: linear-gradient(90deg, #6a82fb 0%, #965df0 100%);
+            border: none; padding: 20px 50px; color: white;
+            border-radius: 15px; font-weight: bold; font-size: 1.1rem;
+            box-shadow: 0 10px 30px rgba(106, 130, 251, 0.3);
+        }
+
+        /* OYUN UI */
+        .header { background: #010409; padding: 15px; display: flex; justify-content: space-around; font-size: 0.9rem; }
+        .gold { color: var(--gold); }
+
+        .card { background: var(--card); margin: 15px; padding: 20px; border-radius: 15px; border: 1px solid #30363d; }
+        
+        .bottom-nav {
+            position: fixed; bottom: 0; width: 100%; height: 70px;
+            background: #161b22; display: flex; justify-content: space-around;
+            align-items: center; border-top: 1px solid #30363d;
+        }
+    </style>
 </head>
 <body>
 
-    <div id="install-banner" class="install-banner hidden">
-        <span>📲 Uygulamayı ana ekrana ekle ve daha hızlı oyna!</span>
-        <button id="install-btn">YÜKLE</button>
+    <div id="pwa-modal" class="hidden">
+        <div class="modal-box">
+            <div style="font-size: 3rem;">📲</div>
+            <h2>Uygulamayı Yükle</h2>
+            <p>Ticaret İmparatorluğu'na hızlı erişim için uygulamayı ana ekrana ekle!</p>
+            <button class="install-btn" id="confirm-install">YÜKLE</button>
+            <button onclick="document.getElementById('pwa-modal').classList.add('hidden')" style="background:none; border:none; color:#8b949e; margin-top:15px;">Daha Sonra</button>
+        </div>
     </div>
 
     <div id="login-screen">
-        <div class="hero">
-            <h1 class="title">🌍 DÜNYA TİCARETİ</h1>
-            <div class="stats-preview">195 Ülke | Kripto | Banka</div>
-            <button id="start-game-btn" class="main-btn">🚀 OYUNA BAŞLA</button>
-        </div>
+        <h1 style="margin-bottom: 40px;">🌍 DÜNYA TİCARETİ</h1>
+        <button class="main-btn" id="start-btn">🚀 İMPARATORLUĞU BAŞLAT</button>
     </div>
 
     <div id="game-screen" class="hidden">
-        <div class="mobile-stats-bar">
-            <div class="m-stat">💰 <span id="p-money">100k</span></div>
-            <div class="m-stat" style="color:#f7931a">₿ <span id="p-btc">0.0</span></div>
-            <div class="m-stat">📍 <span id="p-location">TR</span></div>
+        <div class="header">
+            <div>💰 <span id="money" class="gold">100.000</span></div>
+            <div>₿ <span id="btc" style="color:#f7931a">0.00</span></div>
+            <div>📍 <span id="loc">İstanbul</span></div>
         </div>
 
-        <main id="app-container"></main>
+        <div id="content">
+            </div>
 
         <nav class="bottom-nav">
-            <div class="nav-item" onclick="ui.render('world')">🌍 Dünya</div>
-            <div class="nav-item" onclick="ui.render('trade')">📦 Ticaret</div>
-            <div class="nav-item" onclick="ui.render('crypto')">📈 Borsa</div>
-            <div class="nav-item" onclick="ui.render('bank')">🏦 Banka</div>
-            <div class="nav-item shop-special" onclick="ui.render('shop')">💎 Dükkan</div>
+            <div onclick="show('trade')">📦 Ticaret</div>
+            <div onclick="show('crypto')">📈 Borsa</div>
+            <div onclick="show('shop')" class="gold">💎 Dükkan</div>
         </nav>
     </div>
 
-    <script src="game-engine.js"></script>
+    <script>
+        let deferredPrompt;
+        const player = { money: 100000, btc: 0, btcPrice: 65000 };
+
+        // 1. PWA - 3 SANİYE SONRA BİLDİRİM ÇIKARMA
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            setTimeout(() => {
+                document.getElementById('pwa-modal').classList.remove('hidden');
+            }, 3000); // 3 Saniye bekleme süresi
+        });
+
+        document.getElementById('confirm-install').onclick = async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    document.getElementById('pwa-modal').classList.add('hidden');
+                }
+            }
+        };
+
+        // 2. BANKA & IBAN SİSTEMİ (Otomatik Yönlendirme)
+        function processPayment(tlAmount) {
+            const iban = "TR 5500 0100 9010 5466 7300 5001";
+            const message = `Birim Paketi Alımı - ${tlAmount} TL`;
+            
+            // Gerçek dünyada bu link banka uygulamasına veya ödeme sayfasına atar
+            alert(`🏦 BANKA TRANSFERİ BAŞLATILIYOR...\n\nIBAN: ${iban}\nTutar: ${tlAmount} TL\n\nÖdeme onaylandığında Birim hesabınıza geçecektir.`);
+            
+            // Simülasyon: Ödeme yapıldı sayalım
+            player.money += 1000000;
+            updateUI();
+        }
+
+        // 3. OYUN MANTIĞI
+        document.getElementById('start-btn').onclick = () => {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            show('trade');
+        };
+
+        function show(module) {
+            const container = document.getElementById('content');
+            if(module === 'shop') {
+                container.innerHTML = `
+                    <div class="card">
+                        <h3>💎 Premium Dükkan</h3>
+                        <p>Ödemeler otomatik IBAN'a yönlendirilir.</p>
+                        <button class="install-btn" onclick="processPayment(49.99)">1 MİLYON BİRİM (₺49,99)</button>
+                        <button class="install-btn" style="background:#238636" onclick="processPayment(199.99)">VİP PAKET (₺199,99)</button>
+                    </div>`;
+            } else if(module === 'trade') {
+                container.innerHTML = `
+                    <div class="card">
+                        <h3>📦 Bölgesel Ticaret</h3>
+                        <p>İl ve ilçelerdeki fabrikalardan mal al.</p>
+                        <button class="install-btn" onclick="alert('Mal alındı!')">Kumaş Al (5.000 Birim)</button>
+                    </div>`;
+            }
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('money').innerText = player.money.toLocaleString();
+            document.getElementById('btc').innerText = player.btc.toFixed(4);
+        }
+    </script>
 </body>
 </html>
