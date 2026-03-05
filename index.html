@@ -2,206 +2,45 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="format-detection" content="telephone=no">
-    <title>🌍 Dünya Ticaret İmparatorluğu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6a82fb">
+    <title>Dünya Ticareti</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
 </head>
 <body>
-    <!-- Login Screen -->
-    <div class="login-screen" id="login-screen">
-        <div class="login-container">
-            <div class="login-header">
-                <h1>🌍 Dünya Ticaret İmparatorluğu</h1>
-                <p>🏆 Tüm dünyada ticaret yap, imparatorluk kur!</p>
-                <p>🌏 195+ ülke, 5000+ şehir, 50000+ ilçe!</p>
-            </div>
-            
-            <div class="form-group">
-                <label for="player-name-login">İmparator Adı:</label>
-                <input type="text" id="player-name-login" placeholder="İsminizi girin..." maxlength="20">
-            </div>
-            
-            <div class="form-group">
-                <label>Avatar Seçimi:</label>
-                <div class="avatar-selection-login">
-                    <div class="avatar-option-login" data-avatar="👑">👑</div>
-                    <div class="avatar-option-login" data-avatar="🧑">🧑</div>
-                    <div class="avatar-option-login" data-avatar="👨">👨</div>
-                    <div class="avatar-option-login" data-avatar="👩">👩</div>
-                    <div class="avatar-option-login" data-avatar="🦸">🦸</div>
-                    <div class="avatar-option-login" data-avatar="👸">👸</div>
-                    <div class="avatar-option-login" data-avatar="🧙">🧙</div>
-                    <div class="avatar-option-login" data-avatar="👺">👺</div>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="player-bio-login">Kendinizi Tanıtın:</label>
-                <textarea id="player-bio-login" placeholder="İmparatorluğunuzu tanıtın..." maxlength="100"></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label>Başlangıç Sermayesi:</label>
-                <div class="money-selection">
-                    <div class="money-option" data-money="100000" data-label="Tüccar">💰 Tüccar<br><small>100,000 $</small></div>
-                    <div class="money-option" data-money="500000" data-label="Zengin">💎 Zengin<br><small>500,000 $</small></div>
-                    <div class="money-option" data-money="1000000" data-label="İmparator">👑 İmparator<br><small>1,000,000 $</small></div>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label>
-                    <input type="checkbox" id="online-mode-login">
-                    <span>Online modda oyna</span>
-                </label>
-            </div>
-            
-            <div class="login-buttons">
-                <button class="login-btn" id="start-game-btn">🚀 İmparatorluğu Başlat</button>
-            </div>
-        </div>
-        
-        <div class="login-footer">
-            <p>🌍 En büyük dünya ticaret imparatorluğunu kurun!</p>
-            <p>💼 195 ülkede ticaret yapın</p>
-            <p>🏆 Zengin olun, dünyayı fethedin!</p>
+
+    <div id="install-banner" class="install-banner hidden">
+        <span>📲 Uygulamayı ana ekrana ekle ve daha hızlı oyna!</span>
+        <button id="install-btn">YÜKLE</button>
+    </div>
+
+    <div id="login-screen">
+        <div class="hero">
+            <h1 class="title">🌍 DÜNYA TİCARETİ</h1>
+            <div class="stats-preview">195 Ülke | Kripto | Banka</div>
+            <button id="start-game-btn" class="main-btn">🚀 OYUNA BAŞLA</button>
         </div>
     </div>
 
-    <!-- Game Screen -->
-    <div class="game-screen" id="game-screen" style="display: none;">
-        <header class="game-header">
-            <div class="player-info">
-                <span class="player-avatar" id="player-avatar">👑</span>
-                <span class="player-name" id="player-name">İmparator</span>
-            </div>
-            
-            <div class="game-stats">
-                <div class="stat-item">
-                    <span class="stat-icon">💰</span>
-                    <span class="stat-value" id="player-money">1,000,000 $</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-icon">📍</span>
-                    <span class="stat-value" id="current-location">İstanbul</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-icon">🏆</span>
-                    <span class="stat-value" id="player-level">Level 1</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-icon">📦</span>
-                    <span class="stat-value" id="inventory-count">0</span>
-                </div>
-            </div>
-            
-            <div class="game-actions">
-                <button class="btn btn-primary" id="save-game-btn">💾 Kaydet</button>
-                <button class="btn btn-secondary" id="settings-btn">⚙️ Ayarlar</button>
-            </div>
-        </header>
-
-        <!-- Main Game Area -->
-        <main class="game-main">
-            <!-- Map Section -->
-            <section class="map-section">
-                <div class="section-header">
-                    <h3>🌍 Dünya Ticaret Haritası</h3>
-                    <div class="map-controls">
-                        <button class="btn btn-small" id="zoom-in-btn">🔍+</button>
-                        <button class="btn btn-small" id="zoom-out-btn">🔍-</button>
-                        <button class="btn btn-small" id="reset-map-btn">🔄</button>
-                        <button class="btn btn-small" id="fullscreen-btn">📺</button>
-                    </div>
-                </div>
-                
-                <div class="map-container">
-                    <canvas id="game-map" width="1200" height="600"></canvas>
-                    <div class="map-overlay">
-                        <div class="city-info" id="city-info" style="display: none;">
-                            <h4 id="city-name">Şehir Adı</h4>
-                            <p id="city-region">Ülke</p>
-                            <div class="city-stats">
-                                <span>🏪 <span id="city-shops">0</span> Dükkan</span>
-                                <span>👥 <span id="city-population">0</span> Nüfus</span>
-                                <span>🌍 <span id="city-country">0</span> Ülke</span>
-                            </div>
-                            <button class="btn btn-primary" id="visit-city-btn">🏪 Şehri Ziyaret Et</button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Trade Section -->
-            <section class="trade-section">
-                <div class="section-header">
-                    <h3>💼 Uluslararası Ticaret Merkezi</h3>
-                    <div class="trade-controls">
-                        <select class="trade-filter" id="trade-filter">
-                            <option value="all">Tüm Ürünler</option>
-                            <option value="buy">Alım İmkanı</option>
-                            <option value="sell">Satış İmkanı</option>
-                            <option value="local">Yerel Ürünler</option>
-                            <option value="international">Uluslararası Ürünler</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="trade-container">
-                    <div class="current-city" id="current-city">
-                        <h4>📍 Mevcut Konum</h4>
-                        <div class="city-details">
-                            <p><strong>Şehir:</strong> <span id="current-city-name">İstanbul</span></p>
-                            <p><strong>Ülke:</strong> <span id="current-country-name">Türkiye</span></p>
-                            <p><strong>Bölge:</strong> <span id="current-region-name">Marmara</span></p>
-                        </div>
-                        <div class="city-actions">
-                            <button class="btn btn-primary" id="travel-btn">✈️ Seyahat Et</button>
-                            <button class="btn btn-secondary" id="bank-btn">🏦 Banka</button>
-                        </div>
-                    </div>
-                    
-                    <div class="trade-grid" id="trade-grid">
-                        <!-- Trade cards will be dynamically generated -->
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
-
-    <!-- Modals -->
-    <div class="modal-overlay" id="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modal-title">Modal Başlığı</h3>
-                <button class="modal-close" id="modal-close">✕</button>
-            </div>
-            <div class="modal-body" id="modal-body">
-                Modal içeriği buraya gelecek
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" id="modal-confirm">Tamam</button>
-                <button class="btn btn-secondary" id="modal-cancel">İptal</button>
-            </div>
+    <div id="game-screen" class="hidden">
+        <div class="mobile-stats-bar">
+            <div class="m-stat">💰 <span id="p-money">100k</span></div>
+            <div class="m-stat" style="color:#f7931a">₿ <span id="p-btc">0.0</span></div>
+            <div class="m-stat">📍 <span id="p-location">TR</span></div>
         </div>
+
+        <main id="app-container"></main>
+
+        <nav class="bottom-nav">
+            <div class="nav-item" onclick="ui.render('world')">🌍 Dünya</div>
+            <div class="nav-item" onclick="ui.render('trade')">📦 Ticaret</div>
+            <div class="nav-item" onclick="ui.render('crypto')">📈 Borsa</div>
+            <div class="nav-item" onclick="ui.render('bank')">🏦 Banka</div>
+            <div class="nav-item shop-special" onclick="ui.render('shop')">💎 Dükkan</div>
+        </nav>
     </div>
 
-    <!-- Loading Screen -->
-    <div class="loading-overlay" id="loading-overlay" style="display: none;">
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Dünya Yükleniyor...</div>
-        </div>
-    </div>
-
-    <!-- Scripts -->
-    <script src="world-data.js"></script>
-    <script src="world-map.js"></script>
     <script src="game-engine.js"></script>
 </body>
 </html>
