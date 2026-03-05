@@ -87,10 +87,16 @@ class WorldTradeGame {
     }
     
     setupLoginEvents() {
+        console.log('🎮 Login event listener\'ları kuruluyor...');
+        
         // Avatar seçimi
         const avatarOptions = document.querySelectorAll('.avatar-option-login');
+        console.log('👥 Avatar seçenekleri:', avatarOptions.length);
+        
         avatarOptions.forEach(option => {
             option.addEventListener('click', (e) => {
+                console.log('👤 Avatar seçildi:', e.target.dataset.avatar);
+                
                 // Tüm seçimleri kaldır
                 avatarOptions.forEach(opt => opt.classList.remove('selected'));
                 
@@ -105,8 +111,12 @@ class WorldTradeGame {
         
         // Para seçimi
         const moneyOptions = document.querySelectorAll('.money-option');
+        console.log('💰 Para seçenekleri:', moneyOptions.length);
+        
         moneyOptions.forEach(option => {
             option.addEventListener('click', (e) => {
+                console.log('💰 Para seçildi:', e.currentTarget.dataset.money);
+                
                 // Tüm seçimleri kaldır
                 moneyOptions.forEach(opt => opt.classList.remove('selected'));
                 
@@ -121,9 +131,51 @@ class WorldTradeGame {
         
         // Start game button
         const startBtn = document.getElementById('start-game-btn');
+        console.log('🚀 Start butonu bulundu:', startBtn);
+        
         if (startBtn) {
-            startBtn.addEventListener('click', () => this.startGame());
+            startBtn.addEventListener('click', (e) => {
+                console.log('🎯 Start butonuna tıklandı!');
+                e.preventDefault();
+                e.stopPropagation();
+                this.startGame();
+            });
+            
+            // Alternatif event listener
+            startBtn.addEventListener('mousedown', (e) => {
+                console.log('🖱️ Start butonuna basıldı!');
+                if (e.button === 0) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.startGame();
+                }
+            });
+        } else {
+            console.error('❌ Start butonu bulunamadı!');
         }
+        
+        // Varsayılan seçimleri ayarla
+        setTimeout(() => {
+            console.log('🎯 Varsayılan seçimler ayarlanıyor...');
+            
+            // Avatar varsayılan
+            const defaultAvatar = document.querySelector('.avatar-option-login[data-avatar="👑"]');
+            if (defaultAvatar) {
+                avatarOptions.forEach(opt => opt.classList.remove('selected'));
+                defaultAvatar.classList.add('selected');
+                this.selectedAvatar = '👑';
+                console.log('✅ Varsayılan avatar seçildi: 👑');
+            }
+            
+            // Para varsayılan
+            const defaultMoney = document.querySelector('.money-option[data-money="1000000"]');
+            if (defaultMoney) {
+                moneyOptions.forEach(opt => opt.classList.remove('selected'));
+                defaultMoney.classList.add('selected');
+                this.selectedMoney = 1000000;
+                console.log('✅ Varsayılan para seçildi: 1,000,000 $');
+            }
+        }, 1000);
     }
     
     setupGameEvents() {
@@ -371,29 +423,58 @@ class WorldTradeGame {
     
     startGame() {
         console.log('🚀 Oyun başlatılıyor...');
+        console.log('👤 Seçili avatar:', this.selectedAvatar);
+        console.log('💰 Seçili para:', this.selectedMoney);
+        
+        // Gerekli elementleri kontrol et
+        const playerNameInput = document.getElementById('player-name-login');
+        const loginScreen = document.getElementById('login-screen');
+        const gameScreen = document.getElementById('game-screen');
+        
+        console.log('📝 Player name input:', playerNameInput);
+        console.log('🎮 Login screen:', loginScreen);
+        console.log('🌍 Game screen:', gameScreen);
         
         // Oyuncu profilini oluştur
         this.playerProfile = {
-            name: document.getElementById('player-name-login').value || 'İmparator',
-            avatar: this.selectedAvatar,
-            money: this.selectedMoney,
+            name: playerNameInput ? playerNameInput.value || 'İmparator' : 'İmparator',
+            avatar: this.selectedAvatar || '👑',
+            money: this.selectedMoney || 1000000,
             level: 1,
             experience: 0,
             achievements: []
         };
         
+        console.log('👤 Oyuncu profili oluşturuldu:', this.playerProfile);
+        
         // Oyun durumunu güncelle
-        this.money = this.selectedMoney;
+        this.money = this.selectedMoney || 1000000;
         this.gameState = 'playing';
         
+        console.log('💰 Para ayarlandı:', this.money);
+        console.log('🎮 Game state:', this.gameState);
+        
         // Login ekranını gizle, oyun ekranını göster
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('game-screen').style.display = 'block';
+        if (loginScreen) {
+            loginScreen.style.display = 'none';
+            console.log('✅ Login ekranı gizlendi');
+        } else {
+            console.error('❌ Login ekranı bulunamadı!');
+        }
+        
+        if (gameScreen) {
+            gameScreen.style.display = 'block';
+            console.log('✅ Oyun ekranı gösterildi');
+        } else {
+            console.error('❌ Oyun ekranı bulunamadı!');
+        }
         
         // Oyunu başlat
         this.updateUI();
         this.showNotification('🌍 İmparatorluğunuz başladı!', 'success');
         this.playSound('start');
+        
+        console.log('🎉 Oyun başarıyla başlatıldı!');
     }
     
     handleCityClick(city) {

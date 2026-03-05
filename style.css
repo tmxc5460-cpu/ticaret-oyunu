@@ -33,13 +33,14 @@ body {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     border-radius: 30px;
-    padding: 60px 50px;
+    padding: 80px 60px;
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.1);
-    max-width: 500px;
+    max-width: 600px;
     width: 100%;
     border: 1px solid rgba(255, 255, 255, 0.2);
     position: relative;
     overflow: hidden;
+    min-height: 700px;
 }
 
 .login-container::before {
@@ -90,7 +91,7 @@ body {
 }
 
 .form-group {
-    margin-bottom: 25px;
+    margin-bottom: 30px;
     position: relative;
     z-index: 2;
 }
@@ -108,7 +109,7 @@ body {
 .form-group input,
 .form-group textarea {
     width: 100%;
-    padding: 15px 20px;
+    padding: 18px 25px;
     border: 2px solid rgba(102, 126, 234, 0.2);
     border-radius: 15px;
     font-size: 16px;
@@ -141,14 +142,14 @@ body {
 }
 
 .avatar-option-login {
-    width: 80px;
-    height: 80px;
+    width: 90px;
+    height: 90px;
     border: 3px solid rgba(102, 126, 234, 0.3);
     border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 36px;
+    font-size: 42px;
     cursor: pointer;
     transition: all 0.3s ease;
     background: rgba(255, 255, 255, 0.6);
@@ -202,7 +203,7 @@ body {
 }
 
 .money-option {
-    padding: 25px 20px;
+    padding: 30px 25px;
     border: 3px solid rgba(102, 126, 234, 0.3);
     border-radius: 20px;
     text-align: center;
@@ -213,6 +214,7 @@ body {
     position: relative;
     overflow: hidden;
     font-weight: 600;
+    font-size: 16px;
 }
 
 .money-option::before {
@@ -256,20 +258,21 @@ body {
 /* Butonlar */
 .login-btn {
     width: 100%;
-    padding: 20px 40px;
+    padding: 25px 50px;
     background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;
     border: none;
     border-radius: 15px;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 2px;
-    margin-top: 30px;
+    margin-top: 40px;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
 }
 
 .login-btn::before {
