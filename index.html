@@ -3,172 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Ticaret%20Imparatorlugu%22,%22short_name%22:%22Ticaret%22,%22start_url%22:%22/index.html%22,%22display%22:%22standalone%22,%22background_color%22:%22#0a0b10%22,%22theme_color%22:%22#6a82fb%22}">
-    <title>Dünya Ticareti</title>
-    
+    <title>İmparatorluk 3D: Açık Dünya</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        :root {
-            --bg: #0a0b10;
-            --card: #161b22;
-            --primary: #6a82fb;
-            --gold: #fbc531;
-        }
-
-        body { 
-            margin: 0; background: var(--bg); color: white; 
-            font-family: 'Segoe UI', sans-serif; overflow-x: hidden;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .hidden { display: none !important; }
-
-        /* MOBİL UYGULAMA YÜKLEME PANELİ */
-        #pwa-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 10000;
-            display: flex; justify-content: center; align-items: center;
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-box {
-            background: var(--card); padding: 30px; border-radius: 25px;
-            width: 80%; text-align: center; border: 1px solid var(--primary);
-        }
-
-        .install-btn {
-            background: linear-gradient(90deg, #6a82fb, #965df0);
-            border: none; padding: 15px 30px; color: white;
-            border-radius: 15px; font-weight: bold; margin-top: 20px; width: 100%;
-        }
-
-        /* GİRİŞ EKRANI */
-        #login-screen {
-            height: 100vh; display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-        }
-
-        .main-btn {
-            background: linear-gradient(90deg, #6a82fb 0%, #965df0 100%);
-            border: none; padding: 20px 50px; color: white;
-            border-radius: 15px; font-weight: bold; font-size: 1.1rem;
-            box-shadow: 0 10px 30px rgba(106, 130, 251, 0.3);
-        }
-
-        /* OYUN UI */
-        .header { background: #010409; padding: 15px; display: flex; justify-content: space-around; font-size: 0.9rem; }
-        .gold { color: var(--gold); }
-
-        .card { background: var(--card); margin: 15px; padding: 20px; border-radius: 15px; border: 1px solid #30363d; }
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; }
+        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+        .stat-bar { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 15px; border: 1px solid #6a82fb; color: #fff; pointer-events: auto; }
         
-        .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; height: 70px;
-            background: #161b22; display: flex; justify-content: space-around;
-            align-items: center; border-top: 1px solid #30363d;
-        }
+        /* Joystick Alanı */
+        #joystick-zone { position: absolute; bottom: 40px; left: 40px; width: 120px; height: 120px; background: rgba(255,255,255,0.1); border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); pointer-events: auto; }
+        #joystick-stick { position: absolute; top: 50%; left: 50%; width: 50px; height: 50px; background: #6a82fb; border-radius: 50%; transform: translate(-50%, -50%); }
+
+        /* Etkileşim Butonu */
+        #action-btn { position: absolute; bottom: 50px; right: 40px; width: 80px; height: 80px; background: #fbc531; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #000; pointer-events: auto; box-shadow: 0 0 20px rgba(251, 197, 49, 0.5); }
+
+        /* PWA Modal */
+        #pwa-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; justify-content: center; align-items: center; pointer-events: auto; }
+        .modal-box { background: #161b22; padding: 30px; border-radius: 25px; text-align: center; color: white; border: 1px solid #6a82fb; width: 80%; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
+    <div id="ui-layer">
+        <div class="stat-bar">
+            💰 <span id="money">209.154.549</span><br>
+            📍 <span id="location">Şehir Merkezi</span>
+        </div>
+
+        <div id="joystick-zone"><div id="joystick-stick"></div></div>
+        <div id="action-btn" onclick="checkAction()">TİCARET</div>
+    </div>
+
     <div id="pwa-modal" class="hidden">
         <div class="modal-box">
-            <div style="font-size: 3rem;">📲</div>
-            <h2>Uygulamayı Yükle</h2>
-            <p>Ticaret İmparatorluğu'na hızlı erişim için uygulamayı ana ekrana ekle!</p>
-            <button class="install-btn" id="confirm-install">YÜKLE</button>
-            <button onclick="document.getElementById('pwa-modal').classList.add('hidden')" style="background:none; border:none; color:#8b949e; margin-top:15px;">Daha Sonra</button>
+            <h2>📲 Uygulamayı Yükle</h2>
+            <p>3D Şehri daha akıcı oynamak için ana ekrana ekle!</p>
+            <button onclick="installApp()" style="background:#6a82fb; color:white; border:none; padding:15px; width:100%; border-radius:10px; font-weight:bold;">YÜKLE</button>
+            <button onclick="document.getElementById('pwa-modal').classList.add('hidden')" style="background:none; color:gray; border:none; margin-top:10px;">Sonra</button>
         </div>
-    </div>
-
-    <div id="login-screen">
-        <h1 style="margin-bottom: 40px;">🌍 DÜNYA TİCARETİ</h1>
-        <button class="main-btn" id="start-btn">🚀 İMPARATORLUĞU BAŞLAT</button>
-    </div>
-
-    <div id="game-screen" class="hidden">
-        <div class="header">
-            <div>💰 <span id="money" class="gold">100.000</span></div>
-            <div>₿ <span id="btc" style="color:#f7931a">0.00</span></div>
-            <div>📍 <span id="loc">İstanbul</span></div>
-        </div>
-
-        <div id="content">
-            </div>
-
-        <nav class="bottom-nav">
-            <div onclick="show('trade')">📦 Ticaret</div>
-            <div onclick="show('crypto')">📈 Borsa</div>
-            <div onclick="show('shop')" class="gold">💎 Dükkan</div>
-        </nav>
     </div>
 
     <script>
-        let deferredPrompt;
-        const player = { money: 100000, btc: 0, btcPrice: 65000 };
+        let scene, camera, renderer, player;
+        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
+        let velocity = new THREE.Vector3();
+        let direction = new THREE.Vector3();
+        let joystickActive = false;
+        let joyPos = { x: 0, y: 0 };
 
-        // 1. PWA - 3 SANİYE SONRA BİLDİRİM ÇIKARMA
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            setTimeout(() => {
-                document.getElementById('pwa-modal').classList.remove('hidden');
-            }, 3000); // 3 Saniye bekleme süresi
-        });
+        const state = { money: 209154549 };
 
-        document.getElementById('confirm-install').onclick = async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    document.getElementById('pwa-modal').classList.add('hidden');
-                }
+        init();
+        animate();
+
+        function init() {
+            // Sahne ve Kamera
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0b10);
+            scene.fog = new THREE.FogExp2(0x0a0b10, 0.05);
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.y = 1.7; // İnsan boyu
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            // Işıklandırma
+            const ambientLight = new THREE.AmbientLight(0x404040, 2);
+            scene.add(ambientLight);
+            const sun = new THREE.DirectionalLight(0x6a82fb, 1);
+            sun.position.set(10, 20, 10);
+            scene.add(sun);
+
+            // Zemin (Şehir Meydanı)
+            const floorGeo = new THREE.PlaneGeometry(200, 200);
+            const floorMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
+            const floor = new THREE.Mesh(floorGeo, floorMat);
+            floor.rotation.x = -Math.PI / 2;
+            scene.add(floor);
+
+            // Binalar (Kutular)
+            for (let i = 0; i < 40; i++) {
+                const h = Math.random() * 20 + 5;
+                const boxGeo = new THREE.BoxGeometry(5, h, 5);
+                const boxMat = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
+                const building = new THREE.Mesh(boxGeo, boxMat);
+                building.position.set(Math.random() * 100 - 50, h/2, Math.random() * 100 - 50);
+                scene.add(building);
             }
-        };
 
-        // 2. BANKA & IBAN SİSTEMİ (Otomatik Yönlendirme)
-        function processPayment(tlAmount) {
-            const iban = "TR 5500 0100 9010 5466 7300 5001";
-            const message = `Birim Paketi Alımı - ${tlAmount} TL`;
-            
-            // Gerçek dünyada bu link banka uygulamasına veya ödeme sayfasına atar
-            alert(`🏦 BANKA TRANSFERİ BAŞLATILIYOR...\n\nIBAN: ${iban}\nTutar: ${tlAmount} TL\n\nÖdeme onaylandığında Birim hesabınıza geçecektir.`);
-            
-            // Simülasyon: Ödeme yapıldı sayalım
-            player.money += 1000000;
-            updateUI();
+            // Joystick Kontrolü
+            const joyZone = document.getElementById('joystick-zone');
+            const joyStick = document.getElementById('joystick-stick');
+
+            window.addEventListener('touchstart', e => { 
+                if(e.target.id === 'joystick-zone' || e.target.id === 'joystick-stick') joystickActive = true; 
+            });
+            window.addEventListener('touchend', () => { 
+                joystickActive = false; 
+                joyStick.style.left = '50%'; joyStick.style.top = '50%';
+                moveForward = moveBackward = moveLeft = moveRight = false;
+            });
+            window.addEventListener('touchmove', e => {
+                if(!joystickActive) return;
+                let touch = e.touches[0];
+                let rect = joyZone.getBoundingClientRect();
+                let x = touch.clientX - rect.left - rect.width/2;
+                let y = touch.clientY - rect.top - rect.height/2;
+                
+                let dist = Math.min(Math.sqrt(x*x + y*y), 50);
+                let angle = Math.atan2(y, x);
+                
+                joyStick.style.left = (50 + Math.cos(angle) * dist / rect.width * 100) + '%';
+                joyStick.style.top = (50 + Math.sin(angle) * dist / rect.height * 100) + '%';
+
+                moveForward = y < -10;
+                moveBackward = y > 10;
+                moveLeft = x < -10;
+                moveRight = x > 10;
+            });
+
+            // 3 Saniye Sonra PWA Göster
+            setTimeout(() => { document.getElementById('pwa-modal').classList.remove('hidden'); }, 3000);
         }
 
-        // 3. OYUN MANTIĞI
-        document.getElementById('start-btn').onclick = () => {
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('game-screen').classList.remove('hidden');
-            show('trade');
-        };
-
-        function show(module) {
-            const container = document.getElementById('content');
-            if(module === 'shop') {
-                container.innerHTML = `
-                    <div class="card">
-                        <h3>💎 Premium Dükkan</h3>
-                        <p>Ödemeler otomatik IBAN'a yönlendirilir.</p>
-                        <button class="install-btn" onclick="processPayment(49.99)">1 MİLYON BİRİM (₺49,99)</button>
-                        <button class="install-btn" style="background:#238636" onclick="processPayment(199.99)">VİP PAKET (₺199,99)</button>
-                    </div>`;
-            } else if(module === 'trade') {
-                container.innerHTML = `
-                    <div class="card">
-                        <h3>📦 Bölgesel Ticaret</h3>
-                        <p>İl ve ilçelerdeki fabrikalardan mal al.</p>
-                        <button class="install-btn" onclick="alert('Mal alındı!')">Kumaş Al (5.000 Birim)</button>
-                    </div>`;
-            }
-            updateUI();
+        function checkAction() {
+            alert("🏦 MEKAN: BANKA\nIBAN: TR 5500 0100 9010 5466 7300 5001\nBuradan mülk satın alabilirsin!");
+            state.money -= 10000000;
+            document.getElementById('money').innerText = state.money.toLocaleString();
         }
 
-        function updateUI() {
-            document.getElementById('money').innerText = player.money.toLocaleString();
-            document.getElementById('btc').innerText = player.btc.toFixed(4);
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Yürüme Mantığı
+            velocity.x -= velocity.x * 10.0 * 0.016;
+            velocity.z -= velocity.z * 10.0 * 0.016;
+
+            direction.z = Number(moveForward) - Number(moveBackward);
+            direction.x = Number(moveRight) - Number(moveLeft);
+            direction.normalize();
+
+            if (moveForward || moveBackward) velocity.z -= direction.z * 40.0 * 0.016;
+            if (moveLeft || moveRight) velocity.x -= direction.x * 40.0 * 0.016;
+
+            camera.translateX(-velocity.x * 0.016);
+            camera.translateZ(-velocity.z * 0.016);
+            camera.position.y = 1.7; // Yerde tut
+
+            renderer.render(scene, camera);
         }
+
+        function installApp() { alert("Uygulama yükleniyor..."); document.getElementById('pwa-modal').classList.add('hidden'); }
     </script>
 </body>
 </html>
